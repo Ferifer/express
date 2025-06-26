@@ -26,6 +26,7 @@ createConnection().then(() => {
     const user = userRepo.create({ name, email, password: hashed });
     const result = await userRepo.save(user);
     res.status(201).json({
+      status: 201,
       message: "Register success",
       data: { id: result.id, name: result.name, email: result.email },
     });
@@ -34,6 +35,7 @@ createConnection().then(() => {
   // LOGIN
   app.post("/login", async (req, res) => {
     const { email, password } = req.body;
+    // melakukan Query untuk menemukan data yang sesuai
     const user = await userRepo
       .createQueryBuilder("user")
       .where("user.email = :email", { email })
@@ -47,7 +49,11 @@ createConnection().then(() => {
     const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, {
       expiresIn: "1h",
     });
-    res.json({ token });
+    res.json({
+      status: 200,
+      message: "Login Success",
+      data: { id: user.id, email: user.email, token },
+    });
   });
 
   // GET LIST => Mendapatkan List Users
@@ -62,7 +68,7 @@ createConnection().then(() => {
   });
 
   // GET DETAIL => mendapatkan detail user
-  app.get("/users/:id", async (req, res) => {
+  app.get("/users/:id", authMiddleware, async (req, res) => {
     const userId = parseInt(req.params.id);
     const user = await userRepo.findOne({
       where: {
@@ -86,7 +92,7 @@ createConnection().then(() => {
   });
 
   // CREATE USER
-  app.post("/users", async (req, res) => {
+  app.post("/users", authMiddleware, async (req, res) => {
     const user = userRepo.create(req.body);
     const result = await userRepo.save(user);
     res.json({
@@ -96,7 +102,7 @@ createConnection().then(() => {
     });
   });
 
-  app.patch("/users/:id", async (req, res) => {
+  app.patch("/users/:id", authMiddleware, async (req, res) => {
     const userId = parseInt(req.params.id);
     const { name, email } = req.body;
     const user = await userRepo.findOne({

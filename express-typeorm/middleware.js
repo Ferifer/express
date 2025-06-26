@@ -1,8 +1,9 @@
 const jwt = require("jsonwebtoken");
-const JWT_SECRET = "your_jwt_secret";
+const JWT_SECRET = "1sampai8";
 
 function authMiddleware(req, res, next) {
   const authHeader = req.headers.authorization;
+  // Bearer token
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res.status(401).json({ message: "No token provided" });
   }
