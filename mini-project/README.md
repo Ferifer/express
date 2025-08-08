@@ -108,3 +108,9 @@ Contoh:
 2. Directory repository => buat query untuk operasi sesuai dengan kebutuhan
 3. Directory controller => untuk logic bisnis
 4. Directory routes => membuat endpoint/url
+5. daftarkan Enpoint baru ke index.js
+   Contoh :
+
+```
+app.use("/v1/api/auth", authRoutes);
+```
