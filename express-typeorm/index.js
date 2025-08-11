@@ -49,6 +49,7 @@ createConnection().then(() => {
     const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, {
       expiresIn: "1h",
     });
+
     res.json({
       status: 200,
       message: "Login Success",
@@ -58,7 +59,17 @@ createConnection().then(() => {
 
   // GET LIST => Mendapatkan List Users
   app.get("/users", authMiddleware, async (req, res) => {
-    const users = await userRepo.find();
+    console.log("isi req query", req);
+    const { name, email } = req.query;
+    const users = await userRepo.find({
+      where: {
+        name: name,
+        email: email,
+      },
+      order: {
+        name: "ASC",
+      },
+    });
     console.log("users", users);
     res.json({
       status: 200,
@@ -77,7 +88,7 @@ createConnection().then(() => {
     });
 
     if (!user) {
-      res.json({
+      res.status(404).json({
         status: 404,
         message: `Data ${userId} Not Found`,
         data: null,
@@ -95,6 +106,7 @@ createConnection().then(() => {
   app.post("/users", authMiddleware, async (req, res) => {
     const user = userRepo.create(req.body);
     const result = await userRepo.save(user);
+
     res.json({
       status: 201,
       message: "Success Create Data",

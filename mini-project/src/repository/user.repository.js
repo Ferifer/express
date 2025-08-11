@@ -1,6 +1,7 @@
 const AppDataSource = require("../data-source");
 const User = require("../entities/User");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const JWT_SECRET = "1sampai8";
 
 class UserRepository {
@@ -9,6 +10,11 @@ class UserRepository {
   }
   async register(data) {
     const { name, email, password } = data;
+    const existingUser = await this.repo.findOne({ where: { email } });
+    if (existingUser) {
+      throw new Error("Email already registered");
+    }
+
     const hashed = await bcrypt.hash(password, 10);
 
     const user = this.repo.create({ name, email, password: hashed });
@@ -20,18 +26,18 @@ class UserRepository {
       .createQueryBuilder("user")
       .where("user.email = :email", { email })
       .getOne();
-    if (!user) return res.status(401).json({ message: "Invalid credentials" });
-    const valid = await bcrypt.compare(password, user.password);
-    if (!valid) return res.status(401).json({ message: "Invalid credentials" });
-
+    if (!user) {
+      throw new Error("User not found");
+    }
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      throw new Error("Invalid credentials");
+    }
     const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, {
       expiresIn: "1h",
     });
-    res.json({
-      status: 200,
-      message: "Login Success",
-      data: { id: user.id, email: user.email, token },
-    });
+    const result = { id: user.id, email: user.email, token };
+    return result;
   }
 }
 module.exports = new UserRepository();
