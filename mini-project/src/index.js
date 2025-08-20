@@ -5,6 +5,7 @@ const AppDataSource = require("./data-source");
 const patientRoutes = require("./routes/patient.routes");
 const visitRoutes = require("./routes/visit.routes");
 const authRoutes = require("./routes/auth.routes");
+const fileRoutes = require("./routes/file.routes");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use("/api/v1/patients", patientRoutes);
 app.use("/api/v1/visits", visitRoutes);
 app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/files", fileRoutes);
 
 AppDataSource.initialize()
   .then(() => {
