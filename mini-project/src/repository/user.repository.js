@@ -39,5 +39,41 @@ class UserRepository {
     const result = { id: user.id, email: user.email, token };
     return result;
   }
+  async updateProfile(id, data) {
+    const user = await this.repo
+      .createQueryBuilder("user")
+      .where("user.id = :id", { id })
+      .getOne();
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const { password, ...updateData } = data;
+
+    // Update user fields
+    Object.assign(user, updateData);
+    const updatedUser = await this.repo.save(user);
+
+    // Remove password from response
+    const { password: _, ...userWithoutPassword } = updatedUser;
+
+    return userWithoutPassword;
+  }
+
+  async getProfile(id) {
+    try {
+      const user = await this.repo.findOne({
+        where: { id: id },
+      });
+
+      if (!user) {
+        throw new Error("User not found");
+      }
+
+      return user;
+    } catch (error) {
+      throw new Error(`Get profile failed: ${error.message}`);
+    }
+  }
 }
 module.exports = new UserRepository();

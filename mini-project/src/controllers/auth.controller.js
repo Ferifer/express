@@ -32,5 +32,48 @@ class AuthController {
       });
     }
   }
+
+  async updateProfile(req, res) {
+    try {
+      const userId = req.user.id; // Get user ID from token
+      const updateData = req.body;
+
+      const { password, ...allowedUpdates } = updateData;
+
+      console.log(allowedUpdates);
+
+      const updatedUser = await userRepo.updateProfile(userId, allowedUpdates);
+
+      res.status(200).json({
+        status: 200,
+        message: "Profile updated successfully",
+        data: updatedUser,
+      });
+    } catch (err) {
+      res.status(400).json({
+        status: 400,
+        message: err.message || "Update profile failed",
+      });
+    }
+  }
+
+  async getProfile(req, res) {
+    try {
+      console.log(req.user);
+      const userId = req.user.id; // Get user ID from token
+      const user = await userRepo.getProfile(userId);
+
+      res.status(200).json({
+        status: 200,
+        message: "Profile retrieved successfully",
+        data: user,
+      });
+    } catch (err) {
+      res.status(400).json({
+        status: 400,
+        message: err.message || "Get profile failed",
+      });
+    }
+  }
 }
 module.exports = new AuthController();
