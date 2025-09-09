@@ -1,4 +1,4 @@
-const AppDataSource = require("../data-source");
+const AppDataSource = require("../database/data-source");
 const User = require("../entities/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
